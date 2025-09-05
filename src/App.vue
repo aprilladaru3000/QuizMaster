@@ -1,6 +1,7 @@
 
 <script setup>
 import QuizTimer from './components/QuizTimer.vue'
+import QuizQuestions from './components/QuizQuestions.vue'
 </script>
 
 <template>
@@ -13,6 +14,7 @@ import QuizTimer from './components/QuizTimer.vue'
     </a>
   </div>
   <QuizTimer title="Quiz Timer" />
+  <QuizQuestions />
 </template>
 
 <style scoped>
