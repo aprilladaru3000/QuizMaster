@@ -6,8 +6,11 @@ defineProps({
 })
 
 const count = ref(0)
-const timer = ref(30)
+const maxTime = 30
+const timer = ref(maxTime)
 let intervalId = null
+
+const progress = computed(() => (timer.value / maxTime) * 100)
 
 onMounted(() => {
   intervalId = setInterval(() => {
@@ -34,6 +37,9 @@ onUnmounted(() => {
     <div style="margin-top: 1em;">
       <strong>Timer:</strong> {{ timer }} seconds
     </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" :style="{ width: progress + '%' }"></div>
+    </div>
   </div>
 
   <p>
@@ -54,6 +60,19 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.progress-bar-container {
+  width: 100%;
+  height: 16px;
+  background: #eee;
+  border-radius: 8px;
+  margin: 10px 0 20px 0;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #42b883, #646cff);
+  transition: width 0.3s;
+}
 .read-the-docs {
   color: #888;
 }
