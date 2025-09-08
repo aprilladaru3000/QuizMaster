@@ -1,79 +1,63 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-defineProps({
-  title: String,
+// Props untuk konfigurasi dari komponen induk
+const props = defineProps({
+  // Durasi timer dalam detik
+  duration: {
+    type: Number,
+    default: 30
+  }
 })
 
-const count = ref(0)
-const maxTime = 30
-const timer = ref(maxTime)
-let intervalId = null
+// Emits untuk berkomunikasi kembali ke komponen induk
+const emit = defineEmits(['time-up'])
 
-const progress = computed(() => (timer.value / maxTime) * 100)
+// State internal komponen
+const timeLeft = ref(props.duration)
+let timerInterval = null
 
+// Computed property untuk menghitung persentase progress bar
+const progress = computed(() => (timeLeft.value / props.duration) * 100)
+
+// Fungsi untuk menghentikan timer
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval)
+    timerInterval = null
+  }
+}
+
+// Lifecycle hook: jalankan timer saat komponen dimuat
 onMounted(() => {
-  intervalId = setInterval(() => {
-    if (timer.value > 0) {
-      timer.value--
+  timerInterval = setInterval(() => {
+    if (timeLeft.value > 0) {
+      timeLeft.value--
+    } else {
+      stopTimer()
+      emit('time-up') // Kirim event saat waktu habis
     }
   }, 1000)
 })
 
+// Lifecycle hook: bersihkan timer saat komponen dihancurkan
 onUnmounted(() => {
-  clearInterval(intervalId)
+  stopTimer()
 })
 </script>
 
 <template>
-  <h1>{{ title }}</h1>
-
-  <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
-    <p>
-      Edit
-      <code>components/QuizTimer.vue</code> to test HMR
-    </p>
-    <div style="margin-top: 1em;">
-      <strong>Timer:</strong> {{ timer }} seconds
+  <div class="w-full">
+    <div class="text-center mb-2">
+      <span class="text-2xl font-bold text-gray-700">{{ timeLeft }}</span>
+      <span class="text-sm text-gray-500"> detik tersisa</span>
     </div>
-    <div class="progress-bar-container">
-      <div class="progress-bar" :style="{ width: progress + '%' }"></div>
+
+    <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+      <div 
+        class="bg-gradient-to-r from-green-400 to-blue-500 h-4 rounded-full transition-all duration-500 ease-linear"
+        :style="{ width: progress + '%' }">
+      </div>
     </div>
   </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Learn more about IDE Support for Vue in the
-    <a
-      href="https://vuejs.org/guide/scaling-up/tooling.html#ide-support"
-      target="_blank"
-      >Vue Docs Scaling up Guide</a
-    >.
-  </p>
-  <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
 </template>
-
-<style scoped>
-.progress-bar-container {
-  width: 100%;
-  height: 16px;
-  background: #eee;
-  border-radius: 8px;
-  margin: 10px 0 20px 0;
-  overflow: hidden;
-}
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #42b883, #646cff);
-  transition: width 0.3s;
-}
-.read-the-docs {
-  color: #888;
-}
-</style>
